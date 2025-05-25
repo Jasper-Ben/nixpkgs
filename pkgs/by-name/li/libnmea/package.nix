@@ -12,8 +12,7 @@ stdenv.mkDerivation rec {
     repo = pname;
     tag = null;
     rev = version;
-    sha256 =
-      lib.fakeSha256; # since the package is built of a git commit hash, we technically don't need the hash
+    sha256 = "sha256-8EMcew47h7x3o0ZOaZhj7JsglENQ2GZrJNP1WDXfiY8=";
   };
 
   nativeBuildInputs = [ cmake valgrind ];
