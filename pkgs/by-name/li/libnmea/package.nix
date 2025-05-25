@@ -5,6 +5,8 @@ stdenv.mkDerivation rec {
   pname = "libnmea";
   version = "91fd4338a8f648de9b174d7aac954fedce8852aa";
 
+  outputs = [ "out" "dev" ];
+
   src = fetchFromGitHub {
     owner = "jacketizer";
     repo = pname;
