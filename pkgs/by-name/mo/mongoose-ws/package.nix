@@ -10,12 +10,7 @@ stdenv.mkDerivation rec {
   pname = src.repo + "-ws";
   version = src.tag;
 
-  patches = [
-    # Add Findmongoose.cmake
-    ./0001-Add-Findmongoosecmake-file.patch
-  ];
-
-  outputs = [ "out" "dev" ];
+  outputs = [ "out" ];
 
   configurePhase = "";
 
@@ -23,7 +18,6 @@ stdenv.mkDerivation rec {
   installPhase = ''
     mkdir -p $out/usr/local/lib
     DESTDIR=$out make -C $NIX_BUILD_TOP/${src.name}/test install
-    install -D $NIX_BUILD_TOP/${src.name}/Findmongoose.cmake $dev/share/cmake/${src.repo}/Findmongoose.cmake
   '';
 
   meta = with lib; {
