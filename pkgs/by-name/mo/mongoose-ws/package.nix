@@ -1,38 +1,37 @@
 { stdenv, lib, fetchFromGitHub }:
 
-let
-  remoteSrc = fetchFromGitHub {
+stdenv.mkDerivation rec {
+  src = fetchFromGitHub {
     owner = "cesanta";
     repo = "mongoose";
     tag = "7.18";
-    sha256 = "sha256-8EMcew47h7x3o0ZOaZhj7JsglENQ2GZrJNP1WDXfiY8=";
+    sha256 = "sha256-mbbeZPeUv6caYBqmrgjIlikni/pJmD9lkrc7a1qkurA=";
   };
+  pname = src.repo + "-ws";
+  version = src.tag;
 
-  combinedSrc = lib.fileset.toSource {
-    root = ./.;
-    fileset = lib.fileset.unions [
-      (lib.fileset.fromSource remoteSrc)
-      ./Findmongoose.cmake
-    ];
-  };
-
-in stdenv.mkDerivation {
-  pname = remoteSrc.repo ++ "-ws";
-  version = remoteSrc.tag;
-  src = combinedSrc;
+  patches = [
+    # Add Findmongoose.cmake
+    ./0001-Add-Findmongoosecmake-file.patch
+  ];
 
   outputs = [ "out" "dev" ];
 
-  phases = [ "unpackPhase" "buildPhase" "installPhase" ];
+  configurePhase = "";
 
-  buildPhase = "make -C test linux-libs";
+  buildPhase = "make -C $NIX_BUILD_TOP/${src.name}/test linux-libs";
+  installPhase = ''
+    mkdir -p $out/usr/local/lib
+    DESTDIR=$out make -C $NIX_BUILD_TOP/${src.name}/test install
+    install -D $NIX_BUILD_TOP/${src.name}/Findmongoose.cmake $dev/share/cmake/${src.repo}/Findmongoose.cmake
+  '';
 
   meta = with lib; {
     description =
       "Embedded web server, with TCP/IP network stack, MQTT and Websocket";
     homepage = "https://mongoose.ws/";
-    license = [ licenses.gplv2 licenses.unfree ] # main package is dual-licensed
-      ++ licenses.bsd3; # Findmongoose.cmake is bsd3 licensed
+    license = [ licenses.gpl2 licenses.unfree ] # main package is dual-licensed
+      ++ [ licenses.bsd3 ]; # Findmongoose.cmake is bsd3 licensed
     maintainers = with maintainers; [ Jasper-Ben ];
     platforms = platforms.linux;
   };
